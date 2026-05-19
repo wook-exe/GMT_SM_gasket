@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import ImageDropzone from '../components/ImageDropzone'
 import VerdictBadge from '../components/VerdictBadge'
 import { inferGasket, fileToThumbnail, type InferResponse } from '../lib/inference'
 import { saveInspection } from '../lib/history'
 import { getCurrentUser } from '../lib/auth'
+import { getReference } from '../lib/reference'
 import type { InspectionResult } from '../lib/types'
 
 function newId() {
@@ -18,6 +19,7 @@ export default function Inspect() {
   const [result, setResult] = useState<InferResponse | null>(null)
   const [savedId, setSavedId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const reference = getReference()
   const nav = useNavigate()
 
   const onFile = async (file: File) => {
@@ -160,6 +162,66 @@ export default function Inspect() {
           </div>
         </div>
       )}
+
+      {/* 양품 기준 비교 패널 */}
+      {preview && result && !loading && (
+        <section className="bg-white rounded-lg border border-slate-200 p-5">
+          <header className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-slate-900">양품 기준 비교</h2>
+            <Link
+              to="/live"
+              className="text-xs text-slate-500 hover:text-slate-900"
+            >
+              기준 이미지 변경 →
+            </Link>
+          </header>
+          {reference ? (
+            <div className="grid grid-cols-2 gap-3">
+              <Compare label="검사 이미지" src={preview} highlight={result.verdict === 'FAIL' ? 'red' : 'green'} />
+              <Compare label="양품 기준" src={reference} highlight="muted" />
+            </div>
+          ) : (
+            <div className="text-sm text-slate-500 bg-slate-50 border border-dashed border-slate-300 rounded-md p-6 text-center">
+              아직 양품 기준 이미지가 설정되지 않았습니다.<br />
+              <Link to="/live" className="text-slate-900 underline hover:no-underline">
+                현장 페이지
+              </Link>
+              에서 한 번 설정하면 모든 검사에서 비교할 수 있습니다.
+            </div>
+          )}
+        </section>
+      )}
+    </div>
+  )
+}
+
+function Compare({
+  label,
+  src,
+  highlight,
+}: {
+  label: string
+  src: string
+  highlight: 'red' | 'green' | 'muted'
+}) {
+  const ring =
+    highlight === 'red'
+      ? 'ring-2 ring-red-300'
+      : highlight === 'green'
+        ? 'ring-2 ring-emerald-300'
+        : 'ring-1 ring-slate-200'
+  const labelCls =
+    highlight === 'red'
+      ? 'bg-red-50 text-red-700'
+      : highlight === 'green'
+        ? 'bg-emerald-50 text-emerald-700'
+        : 'bg-slate-50 text-slate-600'
+  return (
+    <div className={`rounded-md overflow-hidden ${ring}`}>
+      <div className={`text-xs font-medium px-3 py-1.5 ${labelCls}`}>{label}</div>
+      <div className="bg-slate-100 p-1">
+        <img src={src} alt={label} className="w-full h-56 object-contain bg-white" />
+      </div>
     </div>
   )
 }

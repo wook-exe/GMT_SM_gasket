@@ -27,6 +27,7 @@ export default function Layout() {
           </Link>
           <div className="flex items-center gap-1">
             <NavLink to="/" end className={linkCls}>홈</NavLink>
+            <NavLink to="/live" className={linkCls}>현장</NavLink>
             <NavLink to="/inspect" className={linkCls}>검사</NavLink>
             <NavLink to="/history" className={linkCls}>이력</NavLink>
             <NavLink to="/mypage" className={linkCls}>마이</NavLink>
