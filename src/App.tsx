@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import Layout from './components/Layout'
-import Home from './pages/Home'
+import Dashboard from './pages/Dashboard'
 import Live from './pages/Live'
 import Inspect from './pages/Inspect'
 import History from './pages/History'
@@ -23,8 +23,15 @@ export default function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route
+          path="/"
+          element={
+            <RequireAuth>
+              <Dashboard />
+            </RequireAuth>
+          }
+        />
         <Route
           path="/live"
           element={

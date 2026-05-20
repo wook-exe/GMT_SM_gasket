@@ -1,7 +1,7 @@
 import type { InspectionResult } from './types'
 
 const KEY = 'gasket-history'
-const MAX_ITEMS = 500
+const MAX_ITEMS = 800
 
 function readAll(): InspectionResult[] {
   const raw = localStorage.getItem(KEY)
@@ -14,13 +14,13 @@ function readAll(): InspectionResult[] {
 }
 
 function writeAll(items: InspectionResult[]) {
-  const capped = items.slice(0, MAX_ITEMS)
-  localStorage.setItem(KEY, JSON.stringify(capped))
+  const sorted = [...items].sort((a, b) => b.timestamp - a.timestamp)
+  localStorage.setItem(KEY, JSON.stringify(sorted.slice(0, MAX_ITEMS)))
 }
 
-export function listHistory(username?: string): InspectionResult[] {
-  const all = readAll()
-  return username ? all.filter((r) => r.user === username) : all
+/** 전체 검사 이력 (최신순) */
+export function listHistory(): InspectionResult[] {
+  return readAll().sort((a, b) => b.timestamp - a.timestamp)
 }
 
 export function getInspection(id: string): InspectionResult | null {
@@ -28,9 +28,12 @@ export function getInspection(id: string): InspectionResult | null {
 }
 
 export function saveInspection(r: InspectionResult) {
-  const all = readAll()
-  all.unshift(r)
-  writeAll(all)
+  writeAll([r, ...readAll()])
+}
+
+/** 여러 건 일괄 삽입 (시연용 데이터 시딩 등) */
+export function bulkInsert(records: InspectionResult[]) {
+  writeAll([...readAll(), ...records])
 }
 
 export function updateMemo(id: string, memo: string) {
@@ -43,4 +46,9 @@ export function updateMemo(id: string, memo: string) {
 
 export function deleteInspection(id: string) {
   writeAll(readAll().filter((r) => r.id !== id))
+}
+
+/** 시연용(demo) 데이터만 제거 — 실제 검사 기록은 유지 */
+export function removeDemoRecords() {
+  writeAll(readAll().filter((r) => !r.demo))
 }

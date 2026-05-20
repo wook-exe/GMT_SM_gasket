@@ -1,46 +1,46 @@
 import { useMemo, useState } from 'react'
 import { listHistory } from '../lib/history'
-import { getCurrentUser } from '../lib/auth'
-import HistoryRow from '../components/HistoryRow'
 import type { Verdict } from '../lib/types'
+import InspectionTable from '../components/InspectionTable'
 
 type Filter = 'all' | Verdict
 
 export default function History() {
-  const user = getCurrentUser()
   const [filter, setFilter] = useState<Filter>('all')
   const [query, setQuery] = useState('')
 
   const items = useMemo(() => {
-    const all = listHistory(user?.username)
+    const all = listHistory()
     return all.filter((r) => {
       if (filter !== 'all' && r.verdict !== filter) return false
-      if (query && !r.filename.toLowerCase().includes(query.toLowerCase())) return false
+      if (query && !r.productName.toLowerCase().includes(query.toLowerCase())) {
+        return false
+      }
       return true
     })
-  }, [user, filter, query])
+  }, [filter, query])
 
   const filters: Filter[] = ['all', 'PASS', 'FAIL']
 
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold text-slate-900">검사 이력</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          {user?.username}님의 모든 검사 결과가 표시됩니다.
+        <h1 className="text-3xl font-bold text-slate-100">검사 이력</h1>
+        <p className="text-sm text-slate-400 mt-1">
+          모든 검사 결과를 확인하세요.
         </p>
       </header>
 
       <div className="flex flex-wrap gap-3 items-center">
-        <div className="flex bg-white rounded-md border border-slate-200 overflow-hidden">
+        <div className="flex bg-slate-800 rounded-md ring-1 ring-slate-700 overflow-hidden">
           {filters.map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
               className={`px-4 py-2 text-sm font-medium transition ${
                 filter === f
-                  ? 'bg-slate-900 text-white'
-                  : 'text-slate-700 hover:bg-slate-100'
+                  ? 'bg-cyan-600/30 text-cyan-300 ring-1 ring-cyan-500/30'
+                  : 'text-slate-400 hover:text-slate-100 hover:bg-slate-700'
               }`}
             >
               {f === 'all' ? '전체' : f === 'PASS' ? '양품' : '불량'}
@@ -49,26 +49,22 @@ export default function History() {
         </div>
         <input
           type="text"
-          placeholder="파일명 검색..."
+          placeholder="제품명 검색..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="flex-1 max-w-xs px-3 py-2 border border-slate-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+          className="flex-1 max-w-xs px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition"
         />
-        <div className="text-sm text-slate-500 ml-auto">{items.length}건</div>
+        <div className="text-sm text-slate-400 ml-auto">{items.length}건</div>
       </div>
 
       {items.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-lg border border-slate-200 text-slate-500">
+        <div className="text-center py-16 bg-slate-900/40 rounded-lg border border-slate-700 ring-1 ring-slate-700 text-slate-500">
           {filter === 'all' && !query
-            ? '검사 이력이 없습니다. 검사 메뉴에서 시작하세요.'
+            ? '검사 이력이 없습니다.'
             : '조건에 맞는 결과가 없습니다.'}
         </div>
       ) : (
-        <div className="space-y-3">
-          {items.map((r) => (
-            <HistoryRow key={r.id} r={r} />
-          ))}
-        </div>
+        <InspectionTable records={items} limit={100} />
       )}
     </div>
   )

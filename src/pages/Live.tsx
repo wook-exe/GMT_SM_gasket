@@ -116,14 +116,13 @@ export default function Live() {
         const user = getCurrentUser()
         saveInspection({
           id: `${result.id}-${Date.now().toString(36)}`,
+          productName: `${line} / ${lot}`,
           filename: result.filename,
-          imageDataUrl: result.imageDataUrl,
           verdict: result.verdict,
           maskMax: result.score,
           threshold: result.threshold,
           timestamp: result.timestamp,
           user: user?.username ?? 'anonymous',
-          heatmapDataUrl: result.heatmapDataUrl,
           source: result.source,
         })
       } catch (e) {

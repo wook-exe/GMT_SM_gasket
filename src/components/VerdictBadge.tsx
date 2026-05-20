@@ -7,16 +7,16 @@ interface Props {
 
 export default function VerdictBadge({ verdict, size = 'sm' }: Props) {
   const isFail = verdict === 'FAIL'
-  const cls = size === 'md' ? 'px-4 py-1.5 text-base' : 'px-3 py-1 text-sm'
+  const cls = size === 'md' ? 'px-4 py-1.5 text-base' : 'px-2.5 py-0.5 text-xs'
   return (
     <span
-      className={`inline-flex items-center ${cls} rounded-full font-semibold ${
+      className={`inline-flex items-center gap-1 ${cls} rounded-full font-semibold ${
         isFail
-          ? 'bg-red-100 text-red-800 ring-1 ring-red-200'
-          : 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200'
+          ? 'bg-red-100 text-red-700'
+          : 'bg-emerald-100 text-emerald-700'
       }`}
     >
-      {isFail ? '✗ 불량 (FAIL)' : '✓ 양품 (PASS)'}
+      {isFail ? '✗ 불량' : '✓ 양품'}
     </span>
   )
 }

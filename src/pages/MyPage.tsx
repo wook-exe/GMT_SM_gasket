@@ -1,165 +1,151 @@
 import { useMemo } from 'react'
-import { Link } from 'react-router-dom'
 import { getCurrentUser } from '../lib/auth'
+import StatCard from '../components/StatCard'
+import InspectionTable from '../components/InspectionTable'
 import { listHistory } from '../lib/history'
+import {
+  computeDayStats,
+  computeOverallStats,
+  computeDefectBreakdown,
+} from '../lib/stats'
 
 export default function MyPage() {
   const user = getCurrentUser()
-  const items = useMemo(() => listHistory(user?.username), [user])
-
-  const total = items.length
-  const fails = items.filter((r) => r.verdict === 'FAIL').length
-  const passes = total - fails
-  const passRate = total === 0 ? 0 : (passes / total) * 100
-
-  const recentFails = items.filter((r) => r.verdict === 'FAIL').slice(0, 5)
-
-  // 최근 7일 일별 카운트
-  const dailyStats = useMemo(() => {
-    const now = new Date()
-    const map = new Map<string, { pass: number; fail: number }>()
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(now)
-      d.setDate(now.getDate() - i)
-      const key = d.toISOString().slice(0, 10)
-      map.set(key, { pass: 0, fail: 0 })
-    }
-    items.forEach((r) => {
-      const key = new Date(r.timestamp).toISOString().slice(0, 10)
-      const bucket = map.get(key)
-      if (bucket) {
-        if (r.verdict === 'PASS') bucket.pass++
-        else bucket.fail++
-      }
-    })
-    return Array.from(map.entries()).map(([date, counts]) => ({ date, ...counts }))
-  }, [items])
-
-  const maxDay = Math.max(1, ...dailyStats.map((d) => d.pass + d.fail))
+  const records = useMemo(() => listHistory(), [])
+  const dayStats = useMemo(() => computeDayStats(records), [records])
+  const overallStats = useMemo(() => computeOverallStats(records), [records])
+  const defects = useMemo(() => computeDefectBreakdown(records), [records])
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
-      <header>
-        <h1 className="text-2xl font-bold text-slate-900">마이 페이지</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          안녕하세요,{' '}
-          <span className="font-medium text-slate-900">{user?.username}</span>님
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-slate-100">검사 현황</h1>
+        <p className="text-sm text-slate-400 mt-1">
+          안녕하세요, <span className="font-medium text-cyan-300">{user?.username}</span>님
         </p>
-      </header>
+      </div>
 
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Stat label="총 검사" value={total.toString()} />
-        <Stat label="양품" value={passes.toString()} accent="green" />
-        <Stat label="불량" value={fails.toString()} accent="red" />
-        <Stat label="양품률" value={`${passRate.toFixed(1)}%`} />
-      </section>
+      {/* Today's focus */}
+      <div className="space-y-3">
+        <h2 className="text-sm font-semibold text-slate-300">오늘 현황</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <StatCard
+            label="생산수량"
+            value={dayStats.production}
+            suffix="개"
+            color="cyan"
+          />
+          <StatCard
+            label="검사수량"
+            value={dayStats.inspected}
+            suffix="개"
+            color="emerald"
+          />
+          <StatCard
+            label="양품"
+            value={dayStats.pass}
+            suffix="개"
+            color="emerald"
+          />
+          <StatCard
+            label="불량"
+            value={dayStats.fail}
+            suffix="개"
+            color="red"
+          />
+        </div>
+        <div className="grid md:grid-cols-2 gap-3">
+          <StatCard
+            label="불량률"
+            value={dayStats.defectRate}
+            suffix="%"
+            color="amber"
+          />
+          <StatCard
+            label="검사율"
+            value={(
+              (dayStats.inspected / dayStats.production) *
+              100
+            ).toFixed(0) as any}
+            suffix="%"
+            color="cyan"
+          />
+        </div>
+      </div>
 
-      <section className="bg-white rounded-lg border border-slate-200 p-6">
-        <h2 className="font-semibold mb-4 text-slate-900">최근 7일 검사 추이</h2>
-        <div className="flex items-end justify-between gap-2 h-32">
-          {dailyStats.map((d) => {
-            const total = d.pass + d.fail
-            const heightPct = (total / maxDay) * 100
-            const failPct = total === 0 ? 0 : (d.fail / total) * 100
-            return (
-              <div key={d.date} className="flex-1 flex flex-col items-center">
-                <div className="flex-1 w-full flex items-end">
-                  <div
-                    className="w-full bg-emerald-200 rounded-t overflow-hidden flex flex-col-reverse"
-                    style={{ height: `${heightPct}%` }}
-                  >
-                    {failPct > 0 && (
-                      <div
-                        className="bg-red-400"
-                        style={{ height: `${failPct}%` }}
-                      />
-                    )}
-                  </div>
-                </div>
-                <div className="text-[10px] text-slate-500 mt-1">
-                  {d.date.slice(5)}
-                </div>
-                <div className="text-[10px] text-slate-400">
-                  {total > 0 ? total : ''}
-                </div>
+      {/* Cumulative stats */}
+      <div className="space-y-3">
+        <h2 className="text-sm font-semibold text-slate-300">누적 통계</h2>
+        <div className="p-4 rounded-lg bg-slate-900/40 ring-1 ring-slate-700 border border-slate-800">
+          <div className="grid md:grid-cols-5 gap-4">
+            <div>
+              <div className="text-xs text-slate-400 mb-1">누적 검사</div>
+              <div className="text-2xl font-bold text-slate-100">
+                {overallStats.total}
               </div>
-            )
-          })}
+            </div>
+            <div>
+              <div className="text-xs text-slate-400 mb-1">누적 양품</div>
+              <div className="text-2xl font-bold text-emerald-400">
+                {overallStats.pass}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-slate-400 mb-1">누적 불량</div>
+              <div className="text-2xl font-bold text-red-400">
+                {overallStats.fail}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-slate-400 mb-1">누적 불량률</div>
+              <div className="text-2xl font-bold text-amber-400">
+                {overallStats.defectRate.toFixed(2)}%
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-slate-400 mb-1">누적 양품률</div>
+              <div className="text-2xl font-bold text-emerald-400">
+                {(100 - overallStats.defectRate).toFixed(2)}%
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="flex gap-4 mt-3 text-xs text-slate-500">
-          <span className="flex items-center gap-1">
-            <span className="w-3 h-3 bg-emerald-200 rounded-sm" /> 양품
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="w-3 h-3 bg-red-400 rounded-sm" /> 불량
-          </span>
-        </div>
-      </section>
+      </div>
 
-      <section className="bg-white rounded-lg border border-slate-200 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-slate-900">최근 불량 5건</h2>
-          {fails > 5 && (
-            <Link
-              to="/history"
-              className="text-sm text-slate-500 hover:text-slate-900"
-            >
-              전체 보기 →
-            </Link>
-          )}
-        </div>
-        {recentFails.length === 0 ? (
-          <p className="text-sm text-slate-500">불량 이력이 없습니다.</p>
-        ) : (
-          <ul className="divide-y divide-slate-100">
-            {recentFails.map((r) => (
-              <li key={r.id}>
-                <Link
-                  to={`/history/${r.id}`}
-                  className="flex items-center gap-3 py-3 hover:bg-slate-50 -mx-2 px-2 rounded transition"
-                >
-                  <img
-                    src={r.imageDataUrl}
-                    alt=""
-                    className="w-10 h-10 object-cover rounded"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm truncate">{r.filename}</div>
-                    <div className="text-xs text-slate-500">
-                      score {r.maskMax.toFixed(2)} ·{' '}
-                      {new Date(r.timestamp).toLocaleDateString('ko-KR')}
-                      {r.memo ? ' · 메모 있음' : ''}
+      {/* Defect breakdown */}
+      {defects.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-sm font-semibold text-slate-300">불량 유형별 (오늘)</h2>
+          <div className="p-4 rounded-lg bg-slate-900/40 ring-1 ring-slate-700 border border-slate-800">
+            <div className="space-y-2">
+              {defects.map((d) => (
+                <div key={d.type} className="flex items-center justify-between">
+                  <div className="text-sm text-slate-300">{d.type}</div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-24 bg-slate-700 rounded-full h-2">
+                      <div
+                        className="bg-red-500 h-2 rounded-full transition-all"
+                        style={{
+                          width: `${Math.min(100, (d.count / Math.max(...defects.map((x) => x.count), 1)) * 100)}%`,
+                        }}
+                      />
+                    </div>
+                    <div className="text-sm font-semibold text-red-400 w-8 text-right">
+                      {d.count}
                     </div>
                   </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-    </div>
-  )
-}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
-function Stat({
-  label,
-  value,
-  accent,
-}: {
-  label: string
-  value: string
-  accent?: 'red' | 'green'
-}) {
-  const color =
-    accent === 'red'
-      ? 'text-red-600'
-      : accent === 'green'
-        ? 'text-emerald-600'
-        : 'text-slate-900'
-  return (
-    <div className="bg-white rounded-lg border border-slate-200 p-4">
-      <div className="text-xs text-slate-500">{label}</div>
-      <div className={`text-2xl font-bold mt-1 ${color}`}>{value}</div>
+      {/* Recent inspections */}
+      <div className="space-y-3">
+        <h2 className="text-sm font-semibold text-slate-300">최근 검사 기록</h2>
+        <InspectionTable records={records} limit={10} />
+      </div>
     </div>
   )
 }
