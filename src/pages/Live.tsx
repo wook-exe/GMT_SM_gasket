@@ -171,15 +171,15 @@ export default function Live() {
   const thresholdPct = (threshold / SCORE_RANGE) * 100
 
   return (
-    <div className="bg-slate-950 text-cyan-100 -mx-4 -my-8 px-4 py-6 min-h-[calc(100vh-3.5rem)] font-mono">
+    <div>
       {/* ── 상단 헤더 ─────────────────────────────────────────── */}
-      <header className="border border-slate-800 bg-slate-900/40 rounded-lg p-4 mb-4 flex flex-wrap items-center gap-x-8 gap-y-3">
+      <header className="border border-slate-200 ring-1 ring-slate-200 bg-white rounded-lg p-4 mb-4 flex flex-wrap items-center gap-x-8 gap-y-3">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-cyan-400 font-bold tracking-widest text-sm">PATCHCORE</span>
-          <span className="text-slate-600">▸</span>
-          <span className="text-cyan-400 font-bold tracking-widest text-sm">GASKET</span>
-          <span className="text-slate-300 text-sm ml-3">도어 가스켓 검사 시스템</span>
-          <span className="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded ml-1">
+          <span className="text-cyan-700 font-bold tracking-widest text-sm">PATCHCORE</span>
+          <span className="text-slate-300">▸</span>
+          <span className="text-cyan-700 font-bold tracking-widest text-sm">GASKET</span>
+          <span className="text-slate-700 text-sm ml-3">도어 가스켓 검사 시스템</span>
+          <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded ml-1">
             {VERSION}
           </span>
         </div>
@@ -190,7 +190,7 @@ export default function Live() {
               <input
                 value={line}
                 onChange={(e) => setLine(e.target.value)}
-                className="bg-transparent border-b border-slate-700 focus:border-cyan-400 focus:outline-none w-20 text-cyan-100 text-sm"
+                className="bg-transparent border-b border-slate-300 focus:border-cyan-500 focus:outline-none w-20 text-slate-900 text-sm"
               />
             }
           />
@@ -200,14 +200,14 @@ export default function Live() {
               <input
                 value={lot}
                 onChange={(e) => setLot(e.target.value)}
-                className="bg-transparent border-b border-slate-700 focus:border-cyan-400 focus:outline-none w-28 text-cyan-100 text-sm"
+                className="bg-transparent border-b border-slate-300 focus:border-cyan-500 focus:outline-none w-28 text-slate-900 text-sm"
               />
             }
           />
-          <Meta label="모델" value={<span className="text-cyan-100">{MODEL_NAME}</span>} />
+          <Meta label="모델" value={<span className="text-slate-900">{MODEL_NAME}</span>} />
           <Meta
             label="사이클"
-            value={<span className="text-cyan-100">{cycle.toString().padStart(4, '0')}</span>}
+            value={<span className="text-slate-900 font-mono">{cycle.toString().padStart(4, '0')}</span>}
           />
           <Meta
             label="상태"
@@ -215,16 +215,16 @@ export default function Live() {
               <span className="flex items-center gap-1.5">
                 <span
                   className={`w-2 h-2 rounded-full ${
-                    paused ? 'bg-amber-400' : 'bg-red-500 animate-pulse'
+                    paused ? 'bg-amber-500' : 'bg-red-500 animate-pulse'
                   }`}
                 />
-                <span className="text-cyan-100">{paused ? '일시정지' : '실시간'}</span>
+                <span className="text-slate-900">{paused ? '일시정지' : '실시간'}</span>
               </span>
             }
           />
           <Meta
             label="시스템 시간"
-            value={<span className="text-cyan-100">{formatTime(now)}</span>}
+            value={<span className="text-slate-900 font-mono">{formatTime(now)}</span>}
           />
         </div>
       </header>
@@ -233,10 +233,10 @@ export default function Live() {
       <section
         className={`rounded-lg border-2 p-6 mb-4 transition ${
           current?.verdict === 'PASS'
-            ? 'border-emerald-500/40 bg-gradient-to-r from-emerald-900/50 via-emerald-950/30 to-transparent'
+            ? 'border-emerald-300 bg-emerald-50'
             : current?.verdict === 'FAIL'
-              ? 'border-red-500/40 bg-gradient-to-r from-red-900/50 via-red-950/30 to-transparent'
-              : 'border-slate-800 bg-slate-900/30'
+              ? 'border-red-300 bg-red-50'
+              : 'border-slate-200 bg-slate-50'
         }`}
       >
         {current ? (
@@ -244,30 +244,30 @@ export default function Live() {
             <div className="flex items-center justify-center gap-5 mb-3">
               <span
                 className={`text-5xl ${
-                  current.verdict === 'PASS' ? 'text-emerald-400' : 'text-red-400'
+                  current.verdict === 'PASS' ? 'text-emerald-500' : 'text-red-500'
                 }`}
               >
                 {current.verdict === 'PASS' ? '✓' : '✗'}
               </span>
               <span
                 className={`text-5xl font-bold tracking-[0.3em] ${
-                  current.verdict === 'PASS' ? 'text-emerald-300' : 'text-red-300'
+                  current.verdict === 'PASS' ? 'text-emerald-700' : 'text-red-700'
                 }`}
               >
                 {current.verdict === 'PASS' ? '합 격' : '불합격'}
               </span>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-xs text-cyan-300 tracking-widest">
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-xs text-slate-600 tracking-widest">
               <span>ID {current.id}</span>
-              <span className="text-slate-600">·</span>
+              <span className="text-slate-300">·</span>
               <span>LANE {current.lane}</span>
-              <span className="text-slate-600">·</span>
+              <span className="text-slate-300">·</span>
               <span>SCORE {current.score.toFixed(4)}</span>
-              <span className="text-slate-600">·</span>
+              <span className="text-slate-300">·</span>
               <span>THRESHOLD {current.threshold.toFixed(2)}</span>
-              <span className="text-slate-600">·</span>
+              <span className="text-slate-300">·</span>
               <span
-                className={current.source === 'mock' ? 'text-amber-400' : 'text-emerald-400'}
+                className={current.source === 'mock' ? 'text-amber-600' : 'text-emerald-600'}
               >
                 {current.source === 'mock' ? 'MOCK' : 'LIVE'}
               </span>
@@ -275,7 +275,7 @@ export default function Live() {
           </>
         ) : (
           <div className="text-center text-slate-500 py-6 text-sm">
-            대기 중 — 우측 하단 <span className="text-cyan-300">+ 이미지 추가</span>로 검사를 시작하세요.
+            대기 중 — 우측 하단 <span className="text-cyan-700">+ 이미지 추가</span>로 검사를 시작하세요.
           </div>
         )}
       </section>
@@ -305,19 +305,19 @@ export default function Live() {
         {/* 사이드바 */}
         <aside className="space-y-4">
           <Card title="▸ 이상 점수">
-            <div className="text-4xl font-bold text-cyan-300 mb-3 font-mono">
+            <div className="text-4xl font-bold text-cyan-700 mb-3 font-mono">
               {current ? current.score.toFixed(4) : '——'}
             </div>
-            <div className="relative h-2 bg-slate-800 rounded-full overflow-visible">
+            <div className="relative h-2 bg-slate-200 rounded-full overflow-visible">
               <div
-                className="absolute top-0 left-0 h-full bg-cyan-400 rounded-full transition-all duration-300"
+                className="absolute top-0 left-0 h-full bg-cyan-500 rounded-full transition-all duration-300"
                 style={{ width: `${scorePct}%` }}
               />
               <div
-                className="absolute top-[-3px] w-0.5 h-[14px] bg-amber-400"
+                className="absolute top-[-3px] w-0.5 h-[14px] bg-amber-500"
                 style={{ left: `${thresholdPct}%` }}
               >
-                <div className="absolute -top-4 -translate-x-1/2 text-[10px] text-amber-400 whitespace-nowrap">
+                <div className="absolute -top-4 -translate-x-1/2 text-[10px] text-amber-600 whitespace-nowrap">
                   T={threshold.toFixed(2)}
                 </div>
               </div>
@@ -325,7 +325,7 @@ export default function Live() {
           </Card>
 
           <Card title="▸ 판정 임계값">
-            <div className="text-center text-2xl font-bold text-cyan-100 mb-2 font-mono">
+            <div className="text-center text-2xl font-bold text-slate-900 mb-2 font-mono">
               {threshold.toFixed(2)}
             </div>
             <input
@@ -335,9 +335,9 @@ export default function Live() {
               step={0.05}
               value={threshold}
               onChange={(e) => setThreshold(parseFloat(e.target.value))}
-              className="w-full accent-cyan-400"
+              className="w-full accent-cyan-600"
             />
-            <div className="flex justify-between text-[10px] text-slate-500 mt-1">
+            <div className="flex justify-between text-[10px] text-slate-400 mt-1">
               <span>0</span>
               <span>{SCORE_RANGE}</span>
             </div>
@@ -346,13 +346,13 @@ export default function Live() {
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => setPaused((p) => !p)}
-              className="py-2.5 bg-slate-900 border border-slate-700 hover:border-cyan-500 hover:bg-slate-800 rounded text-sm transition"
+              className="py-2.5 bg-white border border-slate-300 text-slate-700 hover:border-cyan-500 hover:bg-slate-50 rounded text-sm transition"
             >
               {paused ? '▶ 재개' : '⏸ 일시정지'}
             </button>
             <button
               onClick={onReset}
-              className="py-2.5 bg-slate-900 border border-slate-700 hover:border-red-500 hover:bg-slate-800 rounded text-sm transition"
+              className="py-2.5 bg-white border border-slate-300 text-slate-700 hover:border-red-400 hover:bg-red-50 rounded text-sm transition"
             >
               ↺ 초기화
             </button>
@@ -383,7 +383,7 @@ export default function Live() {
             {reference ? (
               <>
                 <div
-                  className="aspect-video bg-slate-950 rounded border border-slate-800 overflow-hidden mb-3"
+                  className="aspect-video bg-slate-100 rounded border border-slate-200 overflow-hidden mb-3"
                   style={{
                     backgroundImage: `url(${reference})`,
                     backgroundSize: 'contain',
@@ -409,7 +409,7 @@ export default function Live() {
                         }
                       }}
                     />
-                    <span className="block text-center py-2 bg-slate-900 border border-slate-700 hover:border-cyan-500 rounded text-xs transition">
+                    <span className="block text-center py-2 bg-white border border-slate-300 text-slate-700 hover:border-cyan-500 hover:bg-slate-50 rounded text-xs transition">
                       재설정
                     </span>
                   </label>
@@ -419,7 +419,7 @@ export default function Live() {
                       clearReference()
                       setReferenceState(null)
                     }}
-                    className="flex-1 py-2 bg-slate-900 border border-slate-700 hover:border-red-500 rounded text-xs transition"
+                    className="flex-1 py-2 bg-white border border-slate-300 text-slate-700 hover:border-red-400 hover:bg-red-50 rounded text-xs transition"
                   >
                     해제
                   </button>
@@ -443,7 +443,7 @@ export default function Live() {
                     }
                   }}
                 />
-                <span className="block py-3 text-center border border-dashed border-emerald-700 hover:border-emerald-400 hover:bg-emerald-950/30 text-emerald-300 rounded text-xs transition">
+                <span className="block py-3 text-center border border-dashed border-emerald-400 hover:border-emerald-500 hover:bg-emerald-50 text-emerald-700 rounded text-xs transition">
                   + 기준 이미지 업로드
                 </span>
               </label>
@@ -455,13 +455,13 @@ export default function Live() {
 
           <Card title="▸ 큐 상태">
             <div className="flex items-center justify-between text-sm mb-3">
-              <span className="text-slate-400">
+              <span className="text-slate-600">
                 대기{' '}
-                <span className="font-bold text-cyan-300 text-base">{queue.length}</span>
-                <span className="text-slate-500">장</span>
+                <span className="font-bold text-cyan-700 text-base">{queue.length}</span>
+                <span className="text-slate-400">장</span>
               </span>
               {processing && (
-                <span className="text-amber-400 text-xs animate-pulse">처리 중…</span>
+                <span className="text-amber-600 text-xs animate-pulse">처리 중…</span>
               )}
             </div>
             <label className="block cursor-pointer">
@@ -472,7 +472,7 @@ export default function Live() {
                 className="hidden"
                 onChange={(e) => onAddFiles(e.target.files)}
               />
-              <span className="block py-2.5 text-center border border-dashed border-cyan-700 hover:border-cyan-400 hover:bg-cyan-950/30 text-cyan-300 rounded text-sm transition">
+              <span className="block py-2.5 text-center border border-dashed border-cyan-400 hover:border-cyan-500 hover:bg-cyan-50 text-cyan-700 rounded text-sm transition">
                 + 이미지 추가 (다중 선택 가능)
               </span>
             </label>
@@ -495,8 +495,8 @@ function Meta({ label, value }: { label: string; value: ReactNode }) {
 
 function Card({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="bg-slate-900/40 border border-slate-800 rounded-lg p-4">
-      <div className="text-xs text-cyan-400 mb-3 tracking-widest">{title}</div>
+    <div className="bg-white border border-slate-200 ring-1 ring-slate-200 rounded-lg p-4">
+      <div className="text-xs text-cyan-700 mb-3 tracking-widest">{title}</div>
       {children}
     </div>
   )
@@ -513,12 +513,12 @@ function Stat({
 }) {
   const cls =
     color === 'red'
-      ? 'text-red-400'
+      ? 'text-red-600'
       : color === 'green'
-        ? 'text-emerald-400'
-        : 'text-cyan-300'
+        ? 'text-emerald-600'
+        : 'text-cyan-700'
   return (
-    <div className="bg-slate-950/60 border border-slate-800 rounded p-3">
+    <div className="bg-slate-50 border border-slate-200 rounded p-3">
       <div className={`text-2xl font-bold font-mono ${cls}`}>{value}</div>
       <div className="text-[10px] text-slate-500 mt-1 tracking-wider">{label}</div>
     </div>
@@ -536,14 +536,14 @@ function ImagePanel({
   footnote?: string
   accent?: 'cyan' | 'emerald'
 }) {
-  const titleColor = accent === 'emerald' ? 'text-emerald-400' : 'text-cyan-400'
+  const titleColor = accent === 'emerald' ? 'text-emerald-700' : 'text-cyan-700'
   const gridColor =
-    accent === 'emerald' ? 'rgba(52,211,153,0.06)' : 'rgba(34,211,238,0.06)'
+    accent === 'emerald' ? 'rgba(5,150,105,0.06)' : 'rgba(8,145,178,0.06)'
   return (
-    <div className="bg-slate-900/40 border border-slate-800 rounded-lg p-3">
+    <div className="bg-white border border-slate-200 ring-1 ring-slate-200 rounded-lg p-3">
       <div className={`text-xs ${titleColor} mb-2 tracking-widest`}>▸ {title}</div>
       <div
-        className="relative aspect-square bg-slate-950 overflow-hidden rounded"
+        className="relative aspect-square bg-slate-100 overflow-hidden rounded"
         style={{
           backgroundImage: `linear-gradient(${gridColor} 1px, transparent 1px), linear-gradient(90deg, ${gridColor} 1px, transparent 1px)`,
           backgroundSize: '24px 24px',
@@ -560,12 +560,12 @@ function ImagePanel({
             className="absolute inset-6 w-[calc(100%-3rem)] h-[calc(100%-3rem)] object-contain"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-slate-700 text-xs tracking-widest">
+          <div className="absolute inset-0 flex items-center justify-center text-slate-300 text-xs tracking-widest">
             NO SIGNAL
           </div>
         )}
         {footnote && (
-          <div className="absolute bottom-2 right-2 text-[10px] text-slate-500 bg-slate-950/80 px-2 py-1 rounded border border-slate-800">
+          <div className="absolute bottom-2 right-2 text-[10px] text-slate-500 bg-white/90 px-2 py-1 rounded border border-slate-200">
             {footnote}
           </div>
         )}
@@ -587,7 +587,7 @@ function CornerBracket({
     bl: 'bottom-2 left-2 border-b-2 border-l-2',
     br: 'bottom-2 right-2 border-b-2 border-r-2',
   }[position]
-  const color = accent === 'emerald' ? 'border-emerald-400/60' : 'border-cyan-400/60'
+  const color = accent === 'emerald' ? 'border-emerald-500/50' : 'border-cyan-500/50'
   return (
     <div className={`absolute ${cls} ${color} w-5 h-5 z-10 pointer-events-none`} />
   )
@@ -604,7 +604,7 @@ function ScoreChart({
 }) {
   if (history.length === 0) {
     return (
-      <div className="text-xs text-slate-600 py-6 text-center tracking-wider">데이터 없음</div>
+      <div className="text-xs text-slate-400 py-6 text-center tracking-wider">데이터 없음</div>
     )
   }
   const w = 280
@@ -632,13 +632,13 @@ function ScoreChart({
         strokeWidth={1}
         strokeDasharray="3 3"
       />
-      <text x={w - pad} y={tY - 3} textAnchor="end" fontSize="9" fill="#f59e0b">
+      <text x={w - pad} y={tY - 3} textAnchor="end" fontSize="9" fill="#d97706">
         T={threshold.toFixed(2)}
       </text>
 
       {/* score polyline */}
       {data.length > 1 && (
-        <polyline fill="none" stroke="#22d3ee" strokeWidth={1.5} points={points} />
+        <polyline fill="none" stroke="#0891b2" strokeWidth={1.5} points={points} />
       )}
 
       {/* points */}
@@ -648,7 +648,7 @@ function ScoreChart({
           cx={pad + i * xStep}
           cy={yFor(d.score)}
           r={2}
-          fill={d.verdict === 'FAIL' ? '#f87171' : '#34d399'}
+          fill={d.verdict === 'FAIL' ? '#ef4444' : '#10b981'}
         />
       ))}
     </svg>

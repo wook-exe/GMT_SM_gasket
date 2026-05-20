@@ -20,7 +20,7 @@ export default function Detail() {
 
   if (!item) {
     return (
-      <div className="text-center py-16 text-slate-400">
+      <div className="text-center py-16 text-slate-500">
         검사 결과를 찾을 수 없습니다.
       </div>
     )
@@ -46,20 +46,20 @@ export default function Detail() {
     <div className="max-w-3xl mx-auto space-y-6">
       <button
         onClick={() => nav(-1)}
-        className="text-sm text-slate-400 hover:text-slate-100"
+        className="text-sm text-slate-500 hover:text-slate-900"
       >
         ← 뒤로
       </button>
 
-      <div className="bg-slate-900/40 ring-1 ring-slate-700 border border-slate-800 rounded-lg overflow-hidden">
-        <div className="bg-slate-950 p-4">
+      <div className="bg-white ring-1 ring-slate-200 border border-slate-200 rounded-lg overflow-hidden">
+        <div className="bg-slate-50 border-b border-slate-200 p-4">
           <div className="flex items-center justify-between mb-4">
             <VerdictBadge verdict={item.verdict} size="md" />
-            <span className="text-sm text-slate-400">
+            <span className="text-sm text-slate-500">
               {formatTime(item.timestamp)}
             </span>
           </div>
-          <h2 className="text-lg font-semibold text-slate-100 break-all mb-2">
+          <h2 className="text-lg font-semibold text-slate-900 break-all mb-2">
             {item.productName}
           </h2>
           <div className="text-xs text-slate-500">
@@ -68,47 +68,47 @@ export default function Detail() {
         </div>
 
         <div className="p-6">
-          <dl className="grid grid-cols-2 gap-3 text-sm bg-slate-800/30 rounded-md p-4 mb-6 ring-1 ring-slate-700">
+          <dl className="grid grid-cols-2 gap-3 text-sm bg-slate-50 rounded-md p-4 mb-6 ring-1 ring-slate-200">
             <div>
-              <dt className="text-slate-400">mask_max</dt>
-              <dd className="font-mono text-slate-100 font-semibold">
+              <dt className="text-slate-600">mask_max</dt>
+              <dd className="font-mono text-slate-900 font-semibold">
                 {item.maskMax.toFixed(2)}
               </dd>
             </div>
             <div>
-              <dt className="text-slate-400">threshold</dt>
-              <dd className="font-mono text-slate-200">{item.threshold}</dd>
+              <dt className="text-slate-600">threshold</dt>
+              <dd className="font-mono text-slate-700">{item.threshold}</dd>
             </div>
             <div>
-              <dt className="text-slate-400">검사자</dt>
-              <dd className="text-slate-200">{item.user}</dd>
+              <dt className="text-slate-600">검사자</dt>
+              <dd className="text-slate-700">{item.user}</dd>
             </div>
             <div>
-              <dt className="text-slate-400">추론 소스</dt>
+              <dt className="text-slate-600">추론 소스</dt>
               <dd className="text-xs">
                 {item.source === 'mock' ? (
-                  <span className="text-amber-400">mock</span>
+                  <span className="text-amber-700">mock</span>
                 ) : (
-                  <span className="text-emerald-400">실제 모델</span>
+                  <span className="text-emerald-700">실제 모델</span>
                 )}
               </dd>
             </div>
           </dl>
 
           {item.defectType && (
-            <div className="mb-6 p-3 bg-red-500/10 border border-red-500/30 rounded-md">
-              <div className="text-xs text-slate-400 mb-1">불량 유형</div>
-              <div className="text-sm text-red-300 font-semibold">
+            <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-md">
+              <div className="text-xs text-slate-600 mb-1">불량 유형</div>
+              <div className="text-sm text-red-700 font-semibold">
                 {item.defectType}
               </div>
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
               메모
               {item.verdict === 'FAIL' && (
-                <span className="ml-2 text-red-400 text-xs font-normal">
+                <span className="ml-2 text-red-600 text-xs font-normal">
                   (불량 원인 기록 권장)
                 </span>
               )}
@@ -122,7 +122,7 @@ export default function Detail() {
                   ? '예) 우측 상단 미조립 추정 / 라인 3 / 야간 교대조'
                   : '메모를 남길 수 있습니다.'
               }
-              className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-md text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm resize-y transition"
+              className="w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 text-sm resize-y transition"
             />
             <div className="mt-3 flex gap-2">
               <button
@@ -133,7 +133,7 @@ export default function Detail() {
               </button>
               <button
                 onClick={onDelete}
-                className="ml-auto px-4 py-2 text-red-400 hover:bg-red-500/10 rounded-md text-sm transition"
+                className="ml-auto px-4 py-2 text-red-600 hover:bg-red-50 rounded-md text-sm transition"
               >
                 삭제
               </button>

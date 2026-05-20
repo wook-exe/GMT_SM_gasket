@@ -19,15 +19,15 @@ export default function MyPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-slate-100">검사 현황</h1>
-        <p className="text-sm text-slate-400 mt-1">
-          안녕하세요, <span className="font-medium text-cyan-300">{user?.username}</span>님
+        <h1 className="text-3xl font-bold text-slate-900">검사 현황</h1>
+        <p className="text-sm text-slate-600 mt-1">
+          안녕하세요, <span className="font-medium text-cyan-700">{user?.username}</span>님
         </p>
       </div>
 
       {/* Today's focus */}
       <div className="space-y-3">
-        <h2 className="text-sm font-semibold text-slate-300">오늘 현황</h2>
+        <h2 className="text-sm font-semibold text-slate-900">오늘 현황</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard
             label="생산수량"
@@ -75,36 +75,36 @@ export default function MyPage() {
 
       {/* Cumulative stats */}
       <div className="space-y-3">
-        <h2 className="text-sm font-semibold text-slate-300">누적 통계</h2>
-        <div className="p-4 rounded-lg bg-slate-900/40 ring-1 ring-slate-700 border border-slate-800">
+        <h2 className="text-sm font-semibold text-slate-900">누적 통계</h2>
+        <div className="p-4 rounded-lg bg-slate-50 ring-1 ring-slate-200 border border-slate-200">
           <div className="grid md:grid-cols-5 gap-4">
             <div>
-              <div className="text-xs text-slate-400 mb-1">누적 검사</div>
-              <div className="text-2xl font-bold text-slate-100">
+              <div className="text-xs text-slate-600 mb-1">누적 검사</div>
+              <div className="text-2xl font-bold text-slate-900">
                 {overallStats.total}
               </div>
             </div>
             <div>
-              <div className="text-xs text-slate-400 mb-1">누적 양품</div>
-              <div className="text-2xl font-bold text-emerald-400">
+              <div className="text-xs text-slate-600 mb-1">누적 양품</div>
+              <div className="text-2xl font-bold text-emerald-700">
                 {overallStats.pass}
               </div>
             </div>
             <div>
-              <div className="text-xs text-slate-400 mb-1">누적 불량</div>
-              <div className="text-2xl font-bold text-red-400">
+              <div className="text-xs text-slate-600 mb-1">누적 불량</div>
+              <div className="text-2xl font-bold text-red-700">
                 {overallStats.fail}
               </div>
             </div>
             <div>
-              <div className="text-xs text-slate-400 mb-1">누적 불량률</div>
-              <div className="text-2xl font-bold text-amber-400">
+              <div className="text-xs text-slate-600 mb-1">누적 불량률</div>
+              <div className="text-2xl font-bold text-amber-700">
                 {overallStats.defectRate.toFixed(2)}%
               </div>
             </div>
             <div>
-              <div className="text-xs text-slate-400 mb-1">누적 양품률</div>
-              <div className="text-2xl font-bold text-emerald-400">
+              <div className="text-xs text-slate-600 mb-1">누적 양품률</div>
+              <div className="text-2xl font-bold text-emerald-700">
                 {(100 - overallStats.defectRate).toFixed(2)}%
               </div>
             </div>
@@ -115,14 +115,14 @@ export default function MyPage() {
       {/* Defect breakdown */}
       {defects.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-sm font-semibold text-slate-300">불량 유형별 (오늘)</h2>
-          <div className="p-4 rounded-lg bg-slate-900/40 ring-1 ring-slate-700 border border-slate-800">
+          <h2 className="text-sm font-semibold text-slate-900">불량 유형별 (오늘)</h2>
+          <div className="p-4 rounded-lg bg-white ring-1 ring-slate-200 border border-slate-200">
             <div className="space-y-2">
               {defects.map((d) => (
                 <div key={d.type} className="flex items-center justify-between">
-                  <div className="text-sm text-slate-300">{d.type}</div>
+                  <div className="text-sm text-slate-700">{d.type}</div>
                   <div className="flex items-center gap-2">
-                    <div className="w-24 bg-slate-700 rounded-full h-2">
+                    <div className="w-24 bg-slate-200 rounded-full h-2">
                       <div
                         className="bg-red-500 h-2 rounded-full transition-all"
                         style={{
@@ -130,7 +130,7 @@ export default function MyPage() {
                         }}
                       />
                     </div>
-                    <div className="text-sm font-semibold text-red-400 w-8 text-right">
+                    <div className="text-sm font-semibold text-red-700 w-8 text-right">
                       {d.count}
                     </div>
                   </div>
@@ -143,7 +143,7 @@ export default function MyPage() {
 
       {/* Recent inspections */}
       <div className="space-y-3">
-        <h2 className="text-sm font-semibold text-slate-300">최근 검사 기록</h2>
+        <h2 className="text-sm font-semibold text-slate-900">최근 검사 기록</h2>
         <InspectionTable records={records} limit={10} />
       </div>
     </div>
