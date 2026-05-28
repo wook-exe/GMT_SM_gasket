@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import ImageDropzone from '../components/ImageDropzone'
+import InspectionEditor from '../components/InspectionEditor'
 import VerdictBadge from '../components/VerdictBadge'
 import { inferGasket, fileToThumbnail, type InferResponse } from '../lib/inference'
 import { saveInspection } from '../lib/history'
@@ -25,6 +26,7 @@ export default function Inspect() {
   const [preview, setPreview] = useState<string | null>(null)
   const [filename, setFilename] = useState<string>('')
   const [result, setResult] = useState<InferResponse | null>(null)
+  const [record, setRecord] = useState<InspectionResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [gasketType, setGasketType] = useState<GasketType>('OPEN')
   const reference = getReference()
@@ -33,6 +35,7 @@ export default function Inspect() {
     setLoading(true)
     setError(null)
     setResult(null)
+    setRecord(null)
     setFilename(file.name)
     try {
       const thumb = await fileToThumbnail(file)
@@ -58,6 +61,7 @@ export default function Inspect() {
         summary: r.summary,
       }
       saveInspection(rec)
+      setRecord(rec)
     } catch (e) {
       setError(e instanceof Error ? e.message : '알 수 없는 오류')
     } finally {
@@ -68,6 +72,7 @@ export default function Inspect() {
   const reset = () => {
     setPreview(null)
     setResult(null)
+    setRecord(null)
     setError(null)
     setFilename('')
   }
@@ -223,6 +228,15 @@ export default function Inspect() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* 검사 결과 편집 — 판정 수정·불량 유형·메모 */}
+      {record && result && !loading && (
+        <InspectionEditor
+          record={record}
+          heading="검사 결과 기록 — 판정 수정·불량 유형·메모"
+          onSaved={setRecord}
+        />
       )}
 
       {/* 양품 기준 비교 패널 */}
