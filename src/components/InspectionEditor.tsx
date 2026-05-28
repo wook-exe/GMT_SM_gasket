@@ -22,7 +22,9 @@ export default function InspectionEditor({
   const [memo, setMemo] = useState(record.memo ?? '')
   const [saved, setSaved] = useState(false)
 
-  // record 가 바뀌면 폼 상태도 초기화 (단건 검사에서 새 검사할 때 / Detail 에서 id 바뀔 때)
+  // record 의 id 가 바뀌면 폼 상태 초기화 (Detail 에서 다른 기록으로 이동, 단건 검사에서 새 검사 시).
+  // record.defects/memo 등 내부 필드 변경은 onSaved 콜백에서 발생하므로 무시 — 그렇지 않으면
+  // 저장 직후 useEffect 가 폼을 다시 초기화하면서 "✓ 저장됨" 표시가 즉시 사라진다.
   useEffect(() => {
     setVerdict(record.verdict)
     setMemo(record.memo ?? '')
@@ -41,7 +43,8 @@ export default function InspectionEditor({
     }
     setCheckedDefects(checked)
     setEtcText(extras.join(', '))
-  }, [record.id, record.verdict, record.memo, record.defectType, record.defects])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [record.id])
 
   const aiVerdict = record.originalVerdict ?? record.verdict
   const verdictChanged = verdict !== aiVerdict

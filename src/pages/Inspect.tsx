@@ -29,6 +29,7 @@ export default function Inspect() {
   const [record, setRecord] = useState<InspectionResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [gasketType, setGasketType] = useState<GasketType>('OPEN')
+  const [savedToast, setSavedToast] = useState(false)
   const reference = getReference()
 
   const onFile = async (file: File) => {
@@ -77,6 +78,15 @@ export default function Inspect() {
     setFilename('')
   }
 
+  const onSavedNext = () => {
+    setSavedToast(true)
+    // 저장 직후 폼이 닫히는 게 보이도록 약간의 시각적 여유를 둠
+    setTimeout(() => {
+      reset()
+    }, 600)
+    setTimeout(() => setSavedToast(false), 2500)
+  }
+
   const srcLabel = result ? SOURCE_LABEL[result.source] : null
 
   return (
@@ -87,6 +97,13 @@ export default function Inspect() {
           가스켓 이미지를 업로드하면 자동으로 판정하고 이력에 저장합니다.
         </p>
       </header>
+
+      {savedToast && (
+        <div className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 flex items-center gap-2">
+          <span className="text-emerald-600 text-base">✓</span>
+          저장되었습니다. 다음 검사 이미지를 업로드해주세요.
+        </div>
+      )}
 
       <GasketTypeToggle
         value={gasketType}
@@ -235,7 +252,7 @@ export default function Inspect() {
         <InspectionEditor
           record={record}
           heading="검사 결과 기록 — 판정 수정·불량 유형·메모"
-          onSaved={setRecord}
+          onSaved={onSavedNext}
         />
       )}
 
