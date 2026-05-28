@@ -44,6 +44,15 @@ export function updateMemo(id: string, memo: string) {
   writeAll(all)
 }
 
+/** 검사 기록의 일부 필드를 부분 갱신 (verdict 수정·defects 체크 등) */
+export function updateRecord(id: string, patch: Partial<InspectionResult>) {
+  const all = readAll()
+  const idx = all.findIndex((r) => r.id === id)
+  if (idx === -1) return
+  all[idx] = { ...all[idx], ...patch }
+  writeAll(all)
+}
+
 export function deleteInspection(id: string) {
   writeAll(readAll().filter((r) => r.id !== id))
 }

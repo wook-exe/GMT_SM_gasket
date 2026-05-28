@@ -4,7 +4,16 @@ export type Verdict = 'PASS' | 'FAIL'
 export type GasketType = 'OPEN' | 'CLOSE'
 
 /** 가스켓 불량 유형 (PatchCore는 점수만 산출하므로 데모/수동 분류용) */
-export const DEFECT_TYPES = ['미조립', '녹', '오일', '휨'] as const
+export const DEFECT_TYPES = [
+  '미조립',
+  '들뜸',
+  '변형',
+  '절단',
+  '누수',
+  '오염',
+  '파손',
+  '휨',
+] as const
 export type DefectType = (typeof DEFECT_TYPES)[number]
 
 /** 제품 목록 */
@@ -39,6 +48,10 @@ export interface InspectionResult {
   locations?: string[]
   /** 한국어 판정 요약 */
   summary?: string
+  /** AI 원본 판정 (사용자가 verdict 를 수정해도 보존) */
+  originalVerdict?: Verdict
+  /** verdict 가 사용자에 의해 수동 수정되었는지 여부 */
+  verdictManual?: boolean
   /** 시연용 자동 생성 데이터 여부 */
   demo?: boolean
 }
