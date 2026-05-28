@@ -69,6 +69,7 @@ export default function Live() {
   const [history, setHistory] = useState<LiveResult[]>([])
   const [now, setNow] = useState(new Date())
   const [processing, setProcessing] = useState(false)
+  const processingRef = useRef(false)
   const [cycle, setCycle] = useState(readCycle())
   const seqRef = useRef(cycle)
   const [reference, setReferenceState] = useState<string | null>(getReference())
@@ -79,17 +80,16 @@ export default function Live() {
     return () => clearInterval(id)
   }, [])
 
-  // 큐 처리
+  // 큐 처리 — processingRef 가 실제 동시성 가드, processing state 는 UI 표시용
   useEffect(() => {
-    if (paused || processing || queue.length === 0) return
+    if (paused || processingRef.current || queue.length === 0) return
     const file = queue[0]
+    processingRef.current = true
     setProcessing(true)
-    let cancelled = false
     ;(async () => {
       try {
         const thumb = await fileToThumbnail(file, 480)
         const r = await inferGasket(file)
-        if (cancelled) return
         seqRef.current += 1
         writeCycle(seqRef.current)
         setCycle(seqRef.current)
@@ -128,19 +128,15 @@ export default function Live() {
       } catch (e) {
         console.error('[Live] 추론 실패:', e)
       } finally {
-        if (!cancelled) {
-          setTimeout(() => {
-            setQueue((prev) => prev.slice(1))
-            setProcessing(false)
-          }, QUEUE_DELAY_MS)
-        }
+        setTimeout(() => {
+          processingRef.current = false
+          setProcessing(false)
+          setQueue((prev) => prev.slice(1))
+        }, QUEUE_DELAY_MS)
       }
     })()
-    return () => {
-      cancelled = true
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queue, paused, processing, threshold, line, lot])
+  }, [queue, paused, threshold, line, lot])
 
   const onAddFiles = (files: FileList | null) => {
     if (!files) return
