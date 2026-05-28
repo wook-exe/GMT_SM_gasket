@@ -37,7 +37,7 @@ interface LiveResult {
   score: number
   threshold: number
   timestamp: number
-  source: 'api' | 'mock'
+  source: 'api' | 'claude' | 'gemini' | 'mock'
 }
 
 function newGsketId(seq: number) {

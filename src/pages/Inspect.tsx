@@ -6,11 +6,18 @@ import { inferGasket, fileToThumbnail, type InferResponse } from '../lib/inferen
 import { saveInspection } from '../lib/history'
 import { getCurrentUser } from '../lib/auth'
 import { getReference } from '../lib/reference'
-import type { InspectionResult } from '../lib/types'
+import type { GasketType, InspectionResult } from '../lib/types'
 import { PRODUCTS } from '../lib/types'
 
 function newId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8)
+}
+
+const SOURCE_LABEL: Record<InferResponse['source'], { text: string; cls: string }> = {
+  api: { text: '✓ 모델 추론', cls: 'text-emerald-700' },
+  claude: { text: '✓ AI 비전 추론 (Claude)', cls: 'text-cyan-700' },
+  gemini: { text: '✓ AI 비전 추론 (Gemini)', cls: 'text-blue-700' },
+  mock: { text: '⚠ mock 추론', cls: 'text-amber-700' },
 }
 
 export default function Inspect() {
@@ -19,6 +26,7 @@ export default function Inspect() {
   const [filename, setFilename] = useState<string>('')
   const [result, setResult] = useState<InferResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [gasketType, setGasketType] = useState<GasketType>('OPEN')
   const reference = getReference()
 
   const onFile = async (file: File) => {
@@ -29,7 +37,7 @@ export default function Inspect() {
     try {
       const thumb = await fileToThumbnail(file)
       setPreview(thumb)
-      const r = await inferGasket(file)
+      const r = await inferGasket(file, gasketType)
       setResult(r)
 
       const user = getCurrentUser()
@@ -43,6 +51,11 @@ export default function Inspect() {
         timestamp: Date.now(),
         user: user?.username ?? 'anonymous',
         source: r.source,
+        gasketType: r.gasketType ?? gasketType,
+        confidence: r.confidence,
+        defects: r.defects,
+        locations: r.locations,
+        summary: r.summary,
       }
       saveInspection(rec)
     } catch (e) {
@@ -59,6 +72,8 @@ export default function Inspect() {
     setFilename('')
   }
 
+  const srcLabel = result ? SOURCE_LABEL[result.source] : null
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <header>
@@ -67,6 +82,12 @@ export default function Inspect() {
           가스켓 이미지를 업로드하면 자동으로 판정하고 이력에 저장합니다.
         </p>
       </header>
+
+      <GasketTypeToggle
+        value={gasketType}
+        onChange={setGasketType}
+        disabled={loading}
+      />
 
       {!preview ? (
         <ImageDropzone onFile={onFile} disabled={loading} />
@@ -98,23 +119,43 @@ export default function Inspect() {
                 <>
                   <div className="mb-4 flex items-center gap-2 flex-wrap">
                     <VerdictBadge verdict={result.verdict} size="md" />
-                    <span
-                      className={`text-xs ${
-                        result.source === 'mock'
-                          ? 'text-amber-700'
-                          : 'text-emerald-700'
-                      }`}
-                    >
-                      {result.source === 'mock'
-                        ? '⚠ mock 추론'
-                        : '✓ 모델 추론'}
+                    <span className="text-xs font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
+                      {result.gasketType ?? gasketType}
                     </span>
+                    {srcLabel && (
+                      <span className={`text-xs ${srcLabel.cls}`}>
+                        {srcLabel.text}
+                      </span>
+                    )}
                   </div>
                   <dl className="space-y-2 text-sm bg-slate-50 rounded-md p-4 ring-1 ring-slate-200">
+                    {typeof result.confidence === 'number' && (
+                      <div>
+                        <div className="flex justify-between mb-1">
+                          <dt className="text-slate-600">신뢰도</dt>
+                          <dd className="font-mono font-semibold text-slate-900">
+                            {result.confidence}%
+                          </dd>
+                        </div>
+                        <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full ${result.verdict === 'FAIL' ? 'bg-red-500' : 'bg-emerald-500'}`}
+                            style={{ width: `${Math.max(0, Math.min(100, result.confidence))}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
                     <div className="flex justify-between">
-                      <dt className="text-slate-600">mask_max</dt>
+                      <dt className="text-slate-600">
+                        {result.source === 'claude' || result.source === 'gemini'
+                          ? '이상도 점수'
+                          : 'mask_max'}
+                      </dt>
                       <dd className="font-mono font-semibold text-slate-900">
-                        {result.maskMax.toFixed(2)}
+                        {(result.source === 'claude' || result.source === 'gemini') &&
+                        typeof result.score === 'number'
+                          ? result.score.toFixed(4)
+                          : result.maskMax.toFixed(2)}
                       </dd>
                     </div>
                     <div className="flex justify-between">
@@ -132,6 +173,42 @@ export default function Inspect() {
                       </dd>
                     </div>
                   </dl>
+
+                  {result.verdict === 'FAIL' && result.defects && result.defects.length > 0 && (
+                    <div className="mt-4">
+                      <div className="text-xs text-slate-600 mb-1.5">불량 유형</div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {result.defects.map((d, i) => (
+                          <span
+                            key={`${d}-${i}`}
+                            className="text-xs font-medium px-2 py-1 rounded bg-red-50 text-red-700 ring-1 ring-red-200"
+                          >
+                            {d}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {result.verdict === 'FAIL' && result.locations && result.locations.length > 0 && (
+                    <div className="mt-4">
+                      <div className="text-xs text-slate-600 mb-1.5">불량 위치</div>
+                      <ul className="text-sm text-slate-700 space-y-1 list-disc list-inside">
+                        {result.locations.map((loc, i) => (
+                          <li key={i}>{loc}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {result.summary && (
+                    <div className="mt-4">
+                      <div className="text-xs text-slate-600 mb-1.5">판정 요약</div>
+                      <p className="text-sm text-slate-700 bg-white ring-1 ring-slate-200 rounded-md p-3 leading-relaxed">
+                        {result.summary}
+                      </p>
+                    </div>
+                  )}
 
                   <div className="mt-auto pt-6 flex gap-2">
                     <button
@@ -182,6 +259,56 @@ export default function Inspect() {
         </section>
       )}
     </div>
+  )
+}
+
+function GasketTypeToggle({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: GasketType
+  onChange: (v: GasketType) => void
+  disabled?: boolean
+}) {
+  const info =
+    value === 'OPEN'
+      ? 'PatchCore · 비지도 이상탐지 · F1 0.822 (mask_max ≥ 46.45 → FAIL)'
+      : 'EfficientNet-B3 · 지도학습 · AUROC 0.913 (확률 ≥ 0.03 → FAIL)'
+
+  const base =
+    'flex-1 py-2 text-sm font-medium rounded-md transition border'
+  const active =
+    'bg-slate-900 text-white border-slate-900'
+  const inactive =
+    'bg-white text-slate-700 border-slate-200 hover:border-slate-400'
+
+  return (
+    <section className="bg-white ring-1 ring-slate-200 border border-slate-200 rounded-lg p-4">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-sm font-semibold text-slate-900">가스켓 종류</h2>
+        <span className="text-xs text-slate-500">선택한 모델 프롬프트로 분석합니다</span>
+      </div>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => onChange('OPEN')}
+          className={`${base} ${value === 'OPEN' ? active : inactive} disabled:opacity-50 disabled:cursor-not-allowed`}
+        >
+          OPEN (도어 열림)
+        </button>
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => onChange('CLOSE')}
+          className={`${base} ${value === 'CLOSE' ? active : inactive} disabled:opacity-50 disabled:cursor-not-allowed`}
+        >
+          CLOSE (도어 닫힘)
+        </button>
+      </div>
+      <p className="mt-2 text-xs text-slate-500">{info}</p>
+    </section>
   )
 }
 
