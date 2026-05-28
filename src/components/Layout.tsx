@@ -1,5 +1,6 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { getCurrentUser, logout } from '../lib/auth'
+import Chatbot from './Chatbot'
 
 const NAV = [
   { to: '/', label: '대시보드', end: true },
@@ -59,6 +60,7 @@ export default function Layout() {
       <main className="max-w-7xl mx-auto px-4 py-6">
         <Outlet />
       </main>
+      {user && <Chatbot />}
     </div>
   )
 }
