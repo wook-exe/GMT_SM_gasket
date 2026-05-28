@@ -29,14 +29,18 @@ export default function Login() {
       return
     }
 
-    const success = login(id, pw)
-    setLoading(false)
-
-    if (success) {
-      nav(from, { replace: true })
-    } else {
-      setError('아이디 또는 비밀번호가 올바르지 않습니다.')
-      setPassword('')
+    try {
+      const success = await login(id, pw)
+      if (success) {
+        nav(from, { replace: true })
+      } else {
+        setError('아이디 또는 비밀번호가 올바르지 않습니다.')
+        setPassword('')
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '로그인 중 오류가 발생했습니다.')
+    } finally {
+      setLoading(false)
     }
   }
 

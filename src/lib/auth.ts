@@ -1,3 +1,5 @@
+import { isFirebaseConfigured } from './firebase'
+import { syncFromFirestore } from './history'
 import type { Session } from './types'
 
 const KEY = 'gasket-session'
@@ -16,7 +18,14 @@ const DEMO_ACCOUNTS: DemoAccount[] = [
   { loginId: 'admin', password: 'admin1234', displayName: '관리자' },
 ]
 
-export function login(loginId: string, password: string): Session | null {
+/**
+ * 로그인. 성공 시 세션을 localStorage 에 저장하고 반환.
+ * Firebase 가 설정되어 있으면 로그인 직후 원격 이력을 받아 로컬 캐시에 병합한다.
+ */
+export async function login(
+  loginId: string,
+  password: string,
+): Promise<Session | null> {
   const acc = DEMO_ACCOUNTS.find(
     (a) => a.loginId === loginId && a.password === password,
   )
@@ -31,6 +40,16 @@ export function login(loginId: string, password: string): Session | null {
     issuedAt: Date.now(),
   }
   localStorage.setItem(KEY, JSON.stringify(session))
+
+  if (isFirebaseConfigured()) {
+    try {
+      const n = await syncFromFirestore()
+      if (n > 0) console.info(`[auth] Firestore 동기화: ${n}건 로컬로 병합`)
+    } catch (e) {
+      console.warn('[auth] Firestore 동기화 실패 (로컬 캐시로 진행):', e)
+    }
+  }
+
   return session
 }
 
