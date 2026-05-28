@@ -184,22 +184,20 @@ export default function Chatbot() {
             )}
           </div>
 
-          {/* 빠른 질문 */}
-          {messages.length <= 1 && (
-            <div className="px-3 pb-2 flex flex-wrap gap-1.5">
-              {QUICK_PROMPTS.map((q) => (
-                <button
-                  key={q}
-                  type="button"
-                  disabled={loading}
-                  onClick={() => void send(q)}
-                  className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 transition disabled:opacity-50"
-                >
-                  {q}
-                </button>
-              ))}
-            </div>
-          )}
+          {/* 빠른 질문 — 항상 표시 (가로 스크롤) */}
+          <div className="px-3 pt-2 pb-1 border-t border-slate-100 flex gap-1.5 overflow-x-auto scrollbar-thin">
+            {QUICK_PROMPTS.map((q) => (
+              <button
+                key={q}
+                type="button"
+                disabled={loading}
+                onClick={() => void send(q)}
+                className="shrink-0 text-xs px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 transition disabled:opacity-50 whitespace-nowrap"
+              >
+                {q}
+              </button>
+            ))}
+          </div>
 
           {/* 입력 영역 */}
           <form
