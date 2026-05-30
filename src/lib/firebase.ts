@@ -1,5 +1,5 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app'
-import { getFirestore, type Firestore } from 'firebase/firestore'
+import { initializeFirestore, type Firestore } from 'firebase/firestore'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY as string | undefined,
@@ -40,6 +40,10 @@ export function getDb(): Firestore | null {
       appId: firebaseConfig.appId!,
     })
   }
-  if (!db) db = getFirestore(app)
+  if (!db) {
+    // ignoreUndefinedProperties: InspectionResult 의 optional 필드(confidence, defects 등)가
+    // undefined 인 채로 setDoc 에 들어가도 자동으로 제외해서 저장 실패를 막는다.
+    db = initializeFirestore(app, { ignoreUndefinedProperties: true })
+  }
   return db
 }
